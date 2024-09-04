@@ -70,7 +70,7 @@ const WinnerScreen = () => {
     {
       category: 'FC',
       image: require('../assets/game1.png'),
-      name: 'shkokochit***',
+      name: 'shkoko***',
       prize: '240,000 Ks',
       backgroundColor: '#F5A623',
       prizeImage: require('../assets/FirstColor.png'),
@@ -78,7 +78,7 @@ const WinnerScreen = () => {
     {
       category: 'FC',
       image: require('../assets/game1.png'),
-      name: 'shkokochit***',
+      name: 'shkoko***',
       prize: '240,000 Ks',
       backgroundColor: 'white',
       prizeImage: require('../assets/SecondColor.png'),
@@ -86,7 +86,7 @@ const WinnerScreen = () => {
     {
       category: 'FC',
       image: require('../assets/game1.png'),
-      name: 'shkokochit***',
+      name: 'shkoko***',
       prize: '240,000 Ks',
       backgroundColor: '#F5A623',
       prizeImage: require('../assets/FirstColor.png'),
@@ -94,7 +94,7 @@ const WinnerScreen = () => {
     {
       category: 'FC',
       image: require('../assets/game1.png'),
-      name: 'shkokochit***',
+      name: 'shkoko***',
       prize: '240,000 Ks',
       backgroundColor: 'white',
       prizeImage: require('../assets/SecondColor.png'),
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   dailyCardImage: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     borderRadius: 8,
   },
   dailyCardName: {
