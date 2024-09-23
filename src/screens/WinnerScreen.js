@@ -14,7 +14,7 @@ const WinnerCard = ({ type, imageUrl, name, prizeLevel, backgroundColor, amount 
       } style={styles.prizeCardImage} />
       {type}
       </Text>
-      <Text style={styles.dailyCardName}>{name}</Text>
+      <Text style={styles.dailyCardName}>{name.length > 9 ? `${name.substring(0, 9)}***` : name}</Text>
       <Text style={styles.prize}>{formatNumber(amount)}Ks</Text>
     </View>
   </View>
@@ -27,7 +27,7 @@ const MonthlyWinnerCard = ({ type, imageUrl, name, amount, backgroundColor }) =>
       <Image source={require('../assets/FirstColor.png')} style={styles.prizeCardImage} />
       {type}
       </Text>
-      <Text style={styles.dailyCardName}>{name}</Text>
+      <Text style={styles.dailyCardName}>{name.length > 9 ? `${name.substring(0, 9)}***` : name}</Text>
       <Text style={styles.prize}>{formatNumber(amount)}Ks</Text>
     </View>
   </View>
@@ -44,7 +44,7 @@ const DailyWinnerCard = ({ type, imageUrl, name, amount, backgroundColor, prizeL
       {type}
       </Text>
     </View>
-    <Text style={styles.dailyCardName}>{name}</Text>
+    <Text style={styles.dailyCardName}>{name.length > 9 ? `${name.substring(0, 9)}***` : name}</Text>
     <Text style={styles.dailyCardPrize}>{formatNumber(amount)}Ks</Text>
   </View>
 );

@@ -3,13 +3,13 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import axios from 'axios';
 import Papa from 'papaparse';  // CSV parser
 
-const ProductCard = ({ imageUrl, name, symbolImageUrl, percent }) => (
+const ProductCard = ({ imageUrl, name, symbolImageUrl, percent, preText }) => (
   <View style={styles.card}>
     <Image source={{ uri: imageUrl }} style={styles.photo} />
     <Text style={styles.label}>{name}</Text>
     <View style={styles.priceContainer}>
       <Text style={styles.preText}>
-        RTPs
+        {preText}
       <Text style={styles.percent}> {percent}%</Text>
       </Text>
       <Image source={{ uri: symbolImageUrl }} style={styles.smallPhoto} />
@@ -44,6 +44,7 @@ const PopularScreen = () => {
             name={game.name}
             symbolImageUrl={game.symbolImageUrl}
             percent={game.percent}
+            preText={game.preText}
           />
         </View>
       ))}

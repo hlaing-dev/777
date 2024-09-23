@@ -58,7 +58,7 @@ const HomeScreen = () => {
       <View style={styles.header}>
         <Image source={require("../assets/logo.png")} style={styles.logo} />
         <TouchableOpacity onPress={() => changeLanguage(language === 'en' ? 'my' : 'en')}>
-          {language === 'en' ? (
+          {language !== 'en' ? (
             <View style={styles.languageFrame}>
               <Image source={require('../assets/MM.png')} style={styles.languageIcon} /> 
               <Text style={styles.languageText}> မြန်မာ</Text>
