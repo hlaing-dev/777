@@ -1,7 +1,4 @@
-/**
- * @format
- */
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,56 +7,93 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Animated,
+  Dimensions,
 } from "react-native";
 import PromotionScreen from "./PromotionScreen";
 import WinnerScreen from "./WinnerScreen";
 import PopularScreen from "./PopularScreen";
-import Banner from "../components/Banner";
 import WebViewScreen from "./WebviewScreen"; // Adjust the path as needed
+import { useTranslation } from 'react-i18next';
+
+const { width } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const [selectedTab, setSelectedTab] = useState("Tab1");
   const [isWebViewVisible, setIsWebViewVisible] = useState(false);
+  const scrollViewRef = useRef(null);
+  const images = [
+    require("../assets/bannerMyanmar.png"),
+    require("../assets/bannerMyanmar2.png"),
+  ];
+  const { t, i18n } = useTranslation();  // Use translation hook
+  const [language, setLanguage] = useState('en');  // Default language
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    setLanguage(lang);
+  };
+
+
+  useEffect(() => {
+    let scrollValue = 0;
+    const intervalId = setInterval(() => {
+      scrollValue = scrollValue === (images.length - 1) * width ? 0 : scrollValue + width;
+      scrollViewRef.current.scrollTo({ x: scrollValue, animated: true });
+    }, 5000); // Change slide every 3 seconds
+
+    return () => clearInterval(intervalId);
+  }, [images.length]);
 
   return (
     <ScrollView style={styles.container}>
-      {/* Header with Logo, Search Bar, and Language Selector */}
+      {/* WebView Modal */}
       <WebViewScreen
         visible={isWebViewVisible}
         onClose={() => setIsWebViewVisible(false)}
         url="https://shal777.com/" // Replace with your actual URL
       />
+
+      {/* Header with Logo */}
       <View style={styles.header}>
         <Image source={require("../assets/logo.png")} style={styles.logo} />
-      </View>
-      {/* <View style={styles.customContainer}>
-        <TextInput
-          placeholder="Search"
-          style={styles.searchBar}
-          placeholderTextColor="#fff">
-          <Image
-            source={require('../assets/Search.png')}
-            style={styles.searchIcon}
-          />
-          <Text> ရှာဖွေရန်</Text>
-        </TextInput>
-      </View> */}
-
-      {/* Banner Section */}
-      <View>
-        <View style={styles.card}>
-          <Image
-            source={require("../assets/bannerMyanmar.png")}
-            style={styles.bannerImage}
-          />
-        </View>
-
-        <View style={styles.openAccountButton}>
-        <TouchableOpacity style={styles.button} onPress={() => setIsWebViewVisible(true)}>
-          <Text style={styles.buttonText}>အကောင့်ဖွင့်ရန်</Text>
+        <TouchableOpacity onPress={() => changeLanguage(language === 'en' ? 'my' : 'en')}>
+          {language === 'en' ? (
+            <View style={styles.languageFrame}>
+              <Image source={require('../assets/MM.png')} style={styles.languageIcon} /> 
+              <Text style={styles.languageText}> မြန်မာ</Text>
+            </View>
+          ) : (
+            <View style={styles.languageFrame}>
+              <Image source={require('../assets/Eng.png')} style={styles.languageIcon} />
+              <Text style={styles.languageText}> English</Text>
+            </View>
+          )}
         </TouchableOpacity>
+      </View>
+
+      {/* Banner Section with Slideshow */}
+      <View style={styles.bannerContainer}>
+        <ScrollView
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          ref={scrollViewRef}
+        >
+          {images.map((image, index) => (
+            <View key={index} style={styles.card}>
+              <Image source={image} style={styles.bannerImage} />
+            </View>
+          ))}
+        </ScrollView>
+        <View style={styles.openAccountButton}>
+          <TouchableOpacity style={styles.button} onPress={() => setIsWebViewVisible(true)}>
+            <Text style={styles.buttonText}>{t('openAccount')}</Text>
+          </TouchableOpacity>
         </View>
       </View>
+
+      {/* Tabs Section */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={
@@ -72,24 +106,21 @@ const HomeScreen = () => {
           <Text
             style={[styles.tab, selectedTab === "Tab1" && styles.selectedTab]}
           >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "Tab1" && styles.selectedTabText,
-              ]}
-            >
-              <Image
-                source={
-                  selectedTab === "Tab1"
-                    ? require("../assets/PromotionSelected.png")
-                    : require("../assets/Promotion.png")
-                }
-                style={styles.searchIcon}
-              />
-              <Text> ပရိုမိုးရှင်းများ</Text>
+            <Image
+              source={
+                selectedTab === "Tab1"
+                  ? require("../assets/PromotionSelected.png")
+                  : require("../assets/Promotion.png")
+              }
+              style={styles.searchIcon}
+            />
+            <Text style={[styles.tabText, selectedTab === "Tab1" && styles.selectedTabText]}>
+              {" "}
+              {t('promotions')}
             </Text>
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={
             selectedTab === "Tab2"
@@ -101,24 +132,21 @@ const HomeScreen = () => {
           <Text
             style={[styles.tab, selectedTab === "Tab2" && styles.selectedTab]}
           >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "Tab2" && styles.selectedTabText,
-              ]}
-            >
-              <Image
-                source={
-                  selectedTab === "Tab2"
-                    ? require("../assets/WinnerSelected.png")
-                    : require("../assets/Winner.png")
-                }
-                style={styles.searchIcon}
-              />
-              <Text> အနိုင်ရရှိသူများ</Text>
+            <Image
+              source={
+                selectedTab === "Tab2"
+                  ? require("../assets/WinnerSelected.png")
+                  : require("../assets/Winner.png")
+              }
+              style={styles.searchIcon}
+            />
+            <Text style={[styles.tabText, selectedTab === "Tab2" && styles.selectedTabText]}>
+              {" "}
+              {t('winners')}
             </Text>
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={
             selectedTab === "Tab3"
@@ -130,28 +158,25 @@ const HomeScreen = () => {
           <Text
             style={[styles.tab, selectedTab === "Tab3" && styles.selectedTab]}
           >
-            <Text
-              style={[
-                styles.tabText,
-                selectedTab === "Tab3" && styles.selectedTabText,
-              ]}
-            >
-              <Image
-                source={
-                  selectedTab === "Tab3"
-                    ? require("../assets/HighSelected.png")
-                    : require("../assets/High.png")
-                }
-                style={styles.searchIcon}
-              />
-              <Text> အလျော်ကြမ်းဂိမ်းများ</Text>
+            <Image
+              source={
+                selectedTab === "Tab3"
+                  ? require("../assets/HighSelected.png")
+                  : require("../assets/High.png")
+              }
+              style={styles.searchIcon}
+            />
+            <Text style={[styles.tabText, selectedTab === "Tab3" && styles.selectedTabText]}>
+              {" "}
+              {t('highGames')}
             </Text>
           </Text>
         </TouchableOpacity>
       </View>
 
+      {/* Content Section */}
       <ScrollView style={styles.content}>
-        {selectedTab === "Tab1" && <PromotionScreen />}
+        {selectedTab === "Tab1" && <PromotionScreen handleSetIsWebViewVisible={() => setIsWebViewVisible(true)} />}
         {selectedTab === "Tab2" && <WinnerScreen />}
         {selectedTab === "Tab3" && <PopularScreen />}
       </ScrollView>
@@ -160,9 +185,54 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  languageText: {
+    color: "gold",
+    fontSize: 10,
+  },
   container: {
     flex: 1,
     backgroundColor: "black",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+  },
+  languageFrame: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: 'gold',
+    borderRadius: 5,
+    padding: 5,
+    width: 70
+  },
+  logo: {
+    width: 170,
+    height: 50,
+    marginLeft: -35,
+  },
+  languageIcon: {
+    width: 20,
+    height: 20,
+  },
+  bannerContainer: {
+    height: 200,
+    marginBottom: 20,
+  },
+  card: {
+    width,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 5,
+  },
+  bannerImage: {
+    width: "100%",
+    height: 200,
+    resizeMode: "cover",
+    borderRadius: 10,
   },
   tabContainer: {
     flexDirection: "row",
@@ -201,88 +271,9 @@ const styles = StyleSheet.create({
   selectedTabText: {
     color: "black",
   },
-  customContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 5,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-  },
-  logo: {
-    width: 170,
-    height: 50,
-    // resizeMode: 'cover',
-    marginLeft: -35,
-  },
-  searchBar: {
-    flex: 1,
-    padding: 8,
-    margin: 5,
-    backgroundColor: "#2c2c2c",
-    borderRadius: 8,
-    color: "#fff",
-  },
   searchIcon: {
     width: 17,
     height: 17,
-  },
-  banner: {
-    padding: 16,
-    alignItems: "center",
-  },
-  bannerImage: {
-    width: "100%",
-    height: 200,
-    resizeMode: "cover",
-    borderRadius: 10
-  },
-  bannerText: {
-    marginTop: 8,
-    fontSize: 20,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  bonusContainer: {
-    padding: 5,
-  },
-  bonusCard: {
-    marginBottom: 16,
-    borderRadius: 8,
-    backgroundColor: "#333",
-    padding: 16,
-    alignItems: "center",
-  },
-  bonusImage: {
-    width: "100%",
-    height: 100,
-    resizeMode: "cover",
-  },
-  bonusText: {
-    marginTop: 8,
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  // bannerImage: {
-  //   width: 200,
-  //   height: 200,
-  //   borderRadius: 10,
-  // },
-  card: {
-    flexDirection: "row",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5, // This is for Android shadow
-    padding: 5,
-    margin: 5,
   },
   button: {
     backgroundColor: "#383327",
@@ -295,12 +286,13 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   buttonText: {
-    color: "gold", // White text on gold button
+    color: "gold",
     fontSize: 14,
   },
-  openAccountButton: {
-
-  }
+  openAccountButton: {},
+  content: {
+    // padding: 8,
+  },
 });
 
 export default HomeScreen;

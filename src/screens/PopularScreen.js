@@ -1,47 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
+import axios from 'axios';
+import Papa from 'papaparse';  // CSV parser
 
-const ProductCard = ({ photo, label, symbolPhoto }) => (
+const ProductCard = ({ imageUrl, name, symbolImageUrl, percent }) => (
   <View style={styles.card}>
-    <Image source={photo} style={styles.photo} />
-    <Text style={styles.label}>{label}</Text>
+    <Image source={{ uri: imageUrl }} style={styles.photo} />
+    <Text style={styles.label}>{name}</Text>
     <View style={styles.priceContainer}>
       <Text style={styles.preText}>
         RTPs
-      <Text style={styles.percent}> 98%</Text>
+      <Text style={styles.percent}> {percent}%</Text>
       </Text>
-      <Image source={symbolPhoto} style={styles.smallPhoto} />
+      <Image source={{ uri: symbolImageUrl }} style={styles.smallPhoto} />
     </View>
   </View>
 );
 
 const PopularScreen = () => {
+  const SPREADSHEET_ID = '1jef53uNBncQYqWSAeB4HkqDiuVDKN9O4C349zHzmIjw';
+  const [data, setData] = useState();
+  const fetchCSVData = async () => {
+    try {
+      const response = await axios.get(
+        `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet3`
+      );
+      const parsedData = Papa.parse(response.data, { header: true }); // Parse CSV data
+      console.log('parseddata is=>', parsedData);
+      setData(parsedData.data); // Store parsed data in state
+    } catch (error) {
+      console.error('Error fetching CSV data', error);
+    }
+  };
+  useEffect(()=>{
+    fetchCSVData();
+  },[]);
   return (
     <View style={styles.container}>
-      <View style={styles.row}>
-        <ProductCard 
-          photo={require('../assets/game2.png')} 
-          label="Fortune Dragon" 
-          symbolPhoto={require('../assets/symbol.png')} 
-        />
-        <ProductCard 
-          photo={require('../assets/game1.png')} 
-          label="Futebol Feber" 
-          symbolPhoto={require('../assets/symbol.png')} 
-        />
-      </View>
-      <View style={styles.row}>
-        <ProductCard 
-          photo={require('../assets/partystar.png')} 
-          label="Party Star" 
-          symbolPhoto={require('../assets/symbol.png')} 
-        />
-        <ProductCard 
-          photo={require('../assets/threecoin.png')} 
-          label="3 Coin Treasures" 
-          symbolPhoto={require('../assets/symbol.png')} 
-        />
-      </View>
+      {data && data.map((game, index) => (
+        <View style={styles.item} key={index}>
+          <ProductCard
+            imageUrl={game.imageUrl}
+            name={game.name}
+            symbolImageUrl={game.symbolImageUrl}
+            percent={game.percent}
+          />
+        </View>
+      ))}
     </View>
   );
 };
@@ -49,31 +54,35 @@ const PopularScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 5,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'flex-start' // if you want to fill rows left to right
+  },
+  item: {
+    width: '50%' // is 50% of container width
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',
-    marginBottom: 10
+    marginBottom: 10,
   },
   preText: {
     color: 'gold',
   },
   percent: {
-    fontSize: 25,
+    fontSize: 20,
     fontWeight: 'bold',
     color: 'gold'
   },
   card: {
-    width: '49%',
+    width: '95%',
+    marginBottom: 10,  
     borderWidth: 1,
     borderColor: '#333',
     borderRadius: 8,
     padding: 10,
     backgroundColor: '#1e1e1e',
+    
   },
   photo: {
     width: '100%',

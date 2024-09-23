@@ -1,50 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+import Papa from 'papaparse';  // CSV parser
 
-const WinnerCard = ({ category, image, name, prize, backgroundColor, prizeImage }) => (
+const WinnerCard = ({ type, imageUrl, name, prizeLevel, backgroundColor, amount }) => (
   <View style={[styles.card, { backgroundColor }]}>
-    <Image source={image} style={styles.cardImage} />
+    <Image source={{uri: imageUrl}} style={styles.cardImage} />
     <View style={styles.cardContent}>
     <Text style={styles.category}>
-      <Image source={prizeImage} style={styles.prizeCardImage} />
-      {category}
+    <Image source={prizeLevel == 1 ? require('../assets/FirstColor.png') : prizeLevel == 2 ? 
+        require('../assets/SecondColor.png') : require('../assets/ThirdColor.png')
+      } style={styles.prizeCardImage} />
+      {type}
       </Text>
       <Text style={styles.dailyCardName}>{name}</Text>
-      <Text style={styles.prize}>{prize}</Text>
+      <Text style={styles.prize}>{formatNumber(amount)}Ks</Text>
     </View>
   </View>
 );
 
-const MonthlyWinnerCard = ({ category, image, name, prize, backgroundColor }) => (
+const MonthlyWinnerCard = ({ type, imageUrl, name, amount, backgroundColor }) => (
   <View style={[styles.card, { backgroundColor }]}>
     <View style={styles.cardContent}>
       <Text style={styles.category}>
-      <Image source={image} style={styles.prizeCardImage} />
-      {category}
+      <Image source={require('../assets/FirstColor.png')} style={styles.prizeCardImage} />
+      {type}
       </Text>
       <Text style={styles.dailyCardName}>{name}</Text>
-      <Text style={styles.prize}>{prize}</Text>
+      <Text style={styles.prize}>{formatNumber(amount)}Ks</Text>
     </View>
   </View>
 );
 
-const DailyWinnerCard = ({ category, image, name, prize, backgroundColor, prizeLevel, prizeImage}) => (
-  <View style={[prizeLevel === 1 ? styles.firstPrizeDailyCardContainer : styles.dailyCardContainer, { backgroundColor }]}>
+const DailyWinnerCard = ({ type, imageUrl, name, amount, backgroundColor, prizeLevel}) => (
+  <View style={[prizeLevel == 1 ? styles.firstPrizeDailyCardContainer : styles.dailyCardContainer, { backgroundColor }]}>
     <View style={[styles.dailyCard]}>
-      <Image source={image} style={styles.dailyCardImage} />
+      <Image source={{uri: imageUrl}} style={styles.dailyCardImage} />
       <Text style={styles.category}>
-      <Image source={prizeImage} style={styles.prizeCardImage} />
-      {category}
+      <Image source={prizeLevel == 1 ? require('../assets/FirstColor.png') : prizeLevel == 2 ? 
+        require('../assets/SecondColor.png') : require('../assets/ThirdColor.png')
+      } style={styles.prizeCardImage} />
+      {type}
       </Text>
     </View>
     <Text style={styles.dailyCardName}>{name}</Text>
-    <Text style={styles.dailyCardPrize}>{prize}</Text>
+    <Text style={styles.dailyCardPrize}>{formatNumber(amount)}Ks</Text>
   </View>
 );
 
-const WinnerSection = ({ title, winners }) => (
+const WinnerSection = ({ title, winners, t }) => (
   <View style={styles.section}>
-    <Text style={styles.sectionTitle}>{title}</Text>
+    <Text style={styles.sectionTitle}>
+      {
+        title === "Daily Winner" ? t('dailyWinner') : 
+        title === "Monthly Winner" ? t('monthlyWinner') : 
+        t('weeklyWinner')
+      }
+    </Text>
     <View style={styles.cardsContainer}>
       {winners.map((winner, index) => (
         title === "Daily Winner" ? <DailyWinnerCard key={index} {...winner} /> : 
@@ -55,114 +68,44 @@ const WinnerSection = ({ title, winners }) => (
   </View>
 );
 
+const formatNumber = (amount) => {
+  return new Intl.NumberFormat('en-US').format(amount);
+};
+
 const WinnerScreen = () => {
-  const monthlyWinners = [
-    {
-      category: 'FC',
-      image: require('../assets/FirstColor.png'),
-      name: 'shkokochit***',
-      prize: '240,000 Ks',
-      backgroundColor: '#feb503',
-    },
-  ];
+  const { t } = useTranslation();  // Use translation hook
+  const SPREADSHEET_ID = '1jef53uNBncQYqWSAeB4HkqDiuVDKN9O4C349zHzmIjw';
+  const [data, setData] = useState();
+  const [monthlyWinners, setMonthlyWinners] = useState();
+  const [dailyWinners, setDailyWinners] = useState();
+  const [weeklyWinners, setWeeklyWinners] = useState();
+  const fetchCSVData = async () => {
+    try {
+      const response = await axios.get(
+        `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet2`
+      );
+      const parsedData = Papa.parse(response.data, { header: true }); // Parse CSV data
+      console.log('parseddata is=>', parsedData);
+      if(parsedData && parsedData.data) {
+        setMonthlyWinners(parsedData.data.filter(x => x.title === 'monthly'));
+        setDailyWinners(parsedData.data.filter(x => x.title === 'daily'));
+        setWeeklyWinners(parsedData.data.filter(x => x.title === 'weekly'));
+      }
+      setData(parsedData.data); // Store parsed data in state
+    } catch (error) {
+      console.error('Error fetching CSV data', error);
+    }
+  };
 
-  const weeklyWinners = [
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkoko***',
-      prize: '240,000 Ks',
-      backgroundColor: '#F5A623',
-      prizeImage: require('../assets/FirstColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkoko***',
-      prize: '240,000 Ks',
-      backgroundColor: 'white',
-      prizeImage: require('../assets/SecondColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkoko***',
-      prize: '240,000 Ks',
-      backgroundColor: '#F5A623',
-      prizeImage: require('../assets/FirstColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkoko***',
-      prize: '240,000 Ks',
-      backgroundColor: 'white',
-      prizeImage: require('../assets/SecondColor.png'),
-    },
-  ];
-
-  const dailyWinners = [
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '80,000 Ks',
-      backgroundColor: 'white',
-      prizeLevel: 2,
-      prizeImage: require('../assets/SecondColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '120,000 Ks',
-      backgroundColor: '#F5A623',
-      prizeLevel: 1,
-      prizeImage: require('../assets/FirstColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '40,000 Ks',
-      backgroundColor: '#dc7908',
-      prizeLevel: 3,
-      prizeImage: require('../assets/ThirdColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '80,000 Ks',
-      backgroundColor: 'white',
-      prizeLevel: 2,
-      prizeImage: require('../assets/SecondColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '120,000 Ks',
-      backgroundColor: '#F5A623',
-      prizeLevel: 1,
-      prizeImage: require('../assets/FirstColor.png'),
-    },
-    {
-      category: 'FC',
-      image: require('../assets/game1.png'),
-      name: 'shkokochit***',
-      prize: '40,000 Ks',
-      backgroundColor: '#dc7908',
-      prizeLevel: 3,
-      prizeImage: require('../assets/ThirdColor.png'),
-    },
-  ];
+  useEffect(()=>{
+    fetchCSVData();
+  },[]);
 
   return (
     <ScrollView style={styles.container}>
-      <WinnerSection title="Monthly Winner" winners={monthlyWinners} />
-      <WinnerSection title="Weekly Winner" winners={weeklyWinners} />
-      <WinnerSection title="Daily Winner" winners={dailyWinners} />
+      {monthlyWinners && <WinnerSection title="Monthly Winner" winners={monthlyWinners} t={t} />}
+      {weeklyWinners && <WinnerSection title="Weekly Winner" winners={weeklyWinners} t={t}/>}
+      {dailyWinners && <WinnerSection title="Daily Winner" winners={dailyWinners} t={t}/>}
     </ScrollView>
   );
 };

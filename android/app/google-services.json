@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "874917438425",
+    "project_id": "seven-fe482",
+    "storage_bucket": "seven-fe482.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874917438425:android:15b3894e8ce32e985f2fc8",
+        "android_client_info": {
+          "package_name": "com.shal777"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn9rh-0-fZ1W2ka4RLNr4ze6YrjvOjJW0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

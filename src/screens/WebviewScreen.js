@@ -11,13 +11,15 @@ const WebViewScreen = ({ visible, onClose, url }) => {
       onRequestClose={onClose}
     >
       <View style={styles.modalContainer}>
+        <View style={styles.navBar}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
         <WebView 
           source={{ uri: url }} 
           style={styles.webview}
         />
-        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>X</Text>
-        </TouchableOpacity>
       </View>
     </Modal>
   );
@@ -28,20 +30,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  closeButton: {
-    position: 'absolute',
-    top: 15,  // Adjust to avoid any device status bar
-    left: 60,  // Move to top left corner
-    paddingVertical: 5,
+  navBar: {
+    height: 50,  // Height of the navigation bar
+    backgroundColor: 'black',  // Background color for the navigation bar
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Semi-transparent background
-    borderRadius: 15,
     zIndex: 1,
   },
+  closeButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+  },
   closeButtonText: {
-    color: '#fff',
-    fontSize: 14,  // Smaller font to minimize obstruction
+    color: 'gold',
+    fontSize: 14,
     fontWeight: 'bold',
+  },
+  navBarTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 20,  // Space between close button and title
   },
   webview: {
     flex: 1,
